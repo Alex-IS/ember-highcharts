@@ -16,5 +16,5 @@
 npm-debug.log
 testem.log
 gh-pages
-
+.idea
 .DS_Store

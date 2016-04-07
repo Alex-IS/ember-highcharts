@@ -11,7 +11,7 @@ const {
   on,
   run,
   $
-} = Ember;
+  } = Ember;
 
 export default Component.extend({
   classNames: ['highcharts-wrapper'],
@@ -22,7 +22,7 @@ export default Component.extend({
   theme: undefined,
   callback: undefined,
 
-  buildOptions: computed('chartOptions', 'content.[]', function() {
+  buildOptions: computed('chartOptions', 'content.[]', function () {
     let chartOptions = $.extend(true, {}, get(this, 'theme'), get(this, 'chartOptions'));
     let chartContent = get(this, 'content.length') ? get(this, 'content') : [{
       id: 'noData',
@@ -30,7 +30,7 @@ export default Component.extend({
       color: '#aaaaaa'
     }];
 
-    let defaults = { series: chartContent };
+    let defaults = {series: chartContent};
 
     return merge(defaults, chartOptions);
   }),
@@ -79,7 +79,7 @@ export default Component.extend({
   },
 
   draw() {
-    let completeChartOptions = [ get(this, 'buildOptions'), get(this, 'callback') ];
+    let completeChartOptions = [get(this, 'buildOptions'), get(this, 'callback')];
     let mode = get(this, 'mode');
 
     if (typeof mode === 'string' && !!mode) {
@@ -93,12 +93,55 @@ export default Component.extend({
     }
   },
 
-  _renderChart: on('didInsertElement', function() {
+  enableChartRotate(){
+    let chart = get(this, 'chart');
+
+    // Add mouse events for rotation
+    $(chart.container).bind('mousedown.hc touchstart.hc', function (eStart) {
+      eStart = chart.pointer.normalize(eStart);
+
+      var posX = eStart.pageX,
+        posY = eStart.pageY,
+        alpha = chart.options.chart.options3d.alpha,
+        beta = chart.options.chart.options3d.beta,
+        newAlpha,
+        newBeta,
+        sensitivity = 5; // lower is more sensitive
+
+      $(document).bind({
+        'mousemove.hc touchdrag.hc': function (e) {
+          // Run beta
+          newBeta = beta + (posX - e.pageX) / sensitivity;
+          chart.options.chart.options3d.beta = newBeta;
+
+          // Run alpha
+          newAlpha = alpha + (e.pageY - posY) / sensitivity;
+          chart.options.chart.options3d.alpha = newAlpha;
+
+          chart.redraw(false);
+        },
+        'mouseup touchend': function () {
+          $(document).unbind('.hc');
+        }
+      });
+    });
+
+  },
+
+  enableChartRotateAfterRender(){
+    let chartOptions = get(this, 'buildOptions');
+    if (chartOptions.enableChartRotate) {
+      run.scheduleOnce('afterRender', this, 'enableChartRotate');
+    }
+  },
+
+  _renderChart: on('didInsertElement', function () {
     this.drawAfterRender();
+    this.enableChartRotateAfterRender();
     setDefaultHighChartOptions(getOwner(this));
   }),
 
-  _destroyChart: on('willDestroyElement', function() {
+  _destroyChart: on('willDestroyElement', function () {
     if (get(this, 'chart')) {
       get(this, 'chart').destroy();
     }

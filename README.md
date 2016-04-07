@@ -55,6 +55,7 @@ export default Ember.Controller.extend({
                            // When Highcharts introduces a new mode, you will be able to use it here right away.
 
   chartOptions: {
+    enableChartRotate: true, // This property is optional. If specified and true, it will enable user to rotate that specific 3D chart.
     chart: {
         type: 'bar'
     },
@@ -104,6 +105,24 @@ file should provide a hook that returns the final configuration.
  }
 ```
 
+#### Configuring 3D options
+```javascript
+ // app/highcharts-configs/application.js
+
+ export default function(defaultOptions) {
+   defaultOptions.credits.href = 'http://www.my-great-chart.com';
+   defaultOptions.credits.text = 'great charts made cheap';
+   defaultOptions.credits.enabled = true;
+
+   return defaultOptions;
+ }
+```
+
+
+```bash
+ember generate chart <chart-name>
+```
+
 ### Generating Chart Components
 
 Ember-highcharts also provides blueprints to easily create sub-classes of the default high-charts component.
@@ -111,6 +130,7 @@ Ember-highcharts also provides blueprints to easily create sub-classes of the de
 ```bash
 ember generate chart <chart-name>
 ```
+
 
 ### Overriding Chart Redrawing
 

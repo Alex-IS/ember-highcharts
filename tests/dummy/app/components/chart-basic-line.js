@@ -3,8 +3,9 @@ import Ember from 'ember';
 export default Ember.Component.extend({
 
   chartOptions: {
+    enableChartRotate: true,
     chart: {
-      type: 'line'
+      type: 'line',
     },
     title: {
       text: 'Monthly Average Temperature'
